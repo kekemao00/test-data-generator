@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>综合测试数据生成器</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        body {
+            background-color: #f8f9fa;
+            font-family: "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .navbar-brand i {
+            color: #ffcc00;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin: 0 2px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.25);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            margin-right: 5px;
+            font-size: 0.9rem;
+        }
+        /* 顶部标题样式 */
+        .header {
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%);
+            color: white;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+
+        /* 卡片样式 */
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: none;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 表单控件样式 */
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #1a2a6c;
+            box-shadow: 0 0 0 0.25rem rgba(26, 42, 108, 0.25);
+        }
+
+        /* 生成按钮样式 */
+        .btn-generate {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-generate:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(26, 42, 108, 0.4);
+        }
+
+        .btn-generate:disabled {
+            background: #6c757d;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-generate:disabled::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* 结果框样式 */
+        .result-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border: 1px dashed #1a2a6c;
+            padding: 20px;
+            min-height: 150px;
+            font-family: monospace;
+            position: relative;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7f4 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .info-label {
+            width: 120px;
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        /* 标题图标 */
+        .title-icon {
+            font-size: 1.8rem;
+            margin-right: 10px;
+            color: #ffcc00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 高亮提示 */
+        .highlight {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            font-weight: bold;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* 分区标题 */
+        .section-title {
+            color: #1a2a6c;
+            border-bottom: 2px solid #b21f1f;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: #b21f1f;
+        }
+
+        /* 控制标签 */
+        .control-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* 按钮组 */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        /* 通知框 */
+        #notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: none;
+            min-width: 250px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        /* 加载动画 */
+        .loader {
+            display: none;
+            width: 50px;
+            height: 50px;
+            margin: 20px auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #1a2a6c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 折叠面板 */
+        .accordion-button:not(.collapsed) {
+            background-color: #e6e9ff;
+            color: #1a2a6c;
+            font-weight: bold;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .header {
+                border-radius: 0 0 15px 15px;
+            }
+            
+            .card {
+                border-radius: 12px;
+            }
+            
+            .btn-generate {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .info-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+
+        /* 页面加载动画 */
+        #page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loader-spinner {
+            width: 80px;
+            height: 80px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1a2a6c;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b21f1f;
+        }
+        
+        /* 参数设置面板 */
+        .param-panel {
+            background-color: #f0f2f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        /* 数据选择器 */
+        .data-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .data-option {
+            flex: 1 0 calc(25% - 10px);
+            min-width: 120px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .data-option.selected {
+            border-color: #1a2a6c;
+            background-color: #e6e9ff;
+            font-weight: bold;
+        }
+        
+        .data-option i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #1a2a6c;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 页面加载动画 -->
+<div id="page-loader">
+    <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <h3>正在加载测试数据生成器</h3>
+        <p>请稍候...</p>
+    </div>
+</div>
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-id-card-alt me-2"></i>数据生成工具
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="idcard.html">
+                        <i class="fas fa-id-card me-1"></i>身份证生成器
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="userInfo.html">
+                        <i class="fas fa-user-circle me-1"></i>用户信息生成器
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- 顶部标题 -->
+<div class="header py-4 mb-5 text-center">
+    <div class="container">
+        <h1><i class="fas fa-database title-icon"></i>综合测试数据生成器</h1>
+        <p class="lead mt-2 mb-0" style="color: #ffcc00;">一键生成多样化测试数据</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- 数据选择区域 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="section-title"><i class="fas fa-check-circle"></i>选择生成的数据类型</h2>
+                    
+                    <div class="data-selector">
+                        <div class="data-option selected" data-type="name">
+                            <i class="fas fa-user"></i>
+                            <div>姓名</div>
+                        </div>
+                        <div class="data-option selected" data-type="age">
+                            <i class="fas fa-birthday-cake"></i>
+                            <div>年龄</div>
+                        </div>
+                        <div class="data-option selected" data-type="address">
+                            <i class="fas fa-home"></i>
+                            <div>地址</div>
+                        </div>
+                        <div class="data-option selected" data-type="bank">
+                            <i class="fas fa-credit-card"></i>
+                            <div>银行卡</div>
+                        </div>
+                        <div class="data-option" data-type="phone">
+                            <i class="fas fa-mobile-alt"></i>
+                            <div>手机号</div>
+                        </div>
+                        <div class="data-option" data-type="email">
+                            <i class="fas fa-envelope"></i>
+                            <div>电子邮箱</div>
+                        </div>
+                        <div class="data-option" data-type="id">
+                            <i class="fas fa-id-card"></i>
+                            <div>身份证号</div>
+                        </div>
+                        <div class="data-option" data-type="company">
+                            <i class="fas fa-building"></i>
+                            <div>公司名称</div>
+                        </div>
+                    </div>
+                    
+                    <div class="data-selector">
+                        <div class="data-option" data-type="job">
+                            <i class="fas fa-briefcase"></i>
+                            <div>职位</div>
+                        </div>
+                        <div class="data-option" data-type="education">
+                            <i class="fas fa-graduation-cap"></i>
+                            <div>学历</div>
+                        </div>
+                        <div class="data-option" data-type="marriage">
+                            <i class="fas fa-heart"></i>
+                            <div>婚姻状况</div>
+                        </div>
+                        <div class="data-option" data-type="income">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <div>年收入</div>
+                        </div>
+                        <div class="data-option" data-type="website">
+                            <i class="fas fa-globe"></i>
+                            <div>个人网站</div>
+                        </div>
+                        <div class="data-option" data-type="weibo">
+                            <i class="fab fa-weibo"></i>
+                            <div>微博账号</div>
+                        </div>
+                        <div class="data-option" data-type="qq">
+                            <i class="fab fa-qq"></i>
+                            <div>QQ号</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 参数设置卡片 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="section-title"><i class="fas fa-sliders-h"></i>生成参数设置</h2>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="param-panel">
+                                <label for="count" class="control-label"><i class="fas fa-list-ol me-1"></i>生成数量</label>
+                                <select id="count" class="form-select">
+                                    <option value="1">1 条</option>
+                                    <option value="3" selected>3 条</option>
+                                    <option value="5">5 条</option>
+                                    <option value="10">10 条</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="param-panel">
+                                <label class="control-label"><i class="fas fa-venus-mars me-1"></i>性别</label>
+                                <div class="d-flex">
+                                    <div class="form-check me-4">
+                                        <input class="form-check-input" type="radio" name="gender" id="both-gender" value="both" checked>
+                                        <label class="form-check-label" for="both-gender">随机</label>
+                                    </div>
+                                    <div class="form-check me-4">
+                                        <input class="form-check-input" type="radio" name="gender" id="gen-male" value="male">
+                                        <label class="form-check-label" for="gen-male">男</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="gender" id="gen-female" value="female">
+                                        <label class="form-check-label" for="gen-female">女</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="param-panel">
+                                <label class="control-label"><i class="fas fa-birthday-cake me-1"></i>年龄范围</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <select id="min-age" class="form-select">
+                                            <option value="18">18 岁</option>
+                                            <option value="20" selected>20 岁</option>
+                                            <option value="25">25 岁</option>
+                                            <option value="30">30 岁</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <select id="max-age" class="form-select">
+                                            <option value="40">40 岁</option>
+                                            <option value="50" selected>50 岁</option>
+                                            <option value="60">60 岁</option>
+                                            <option value="70">70 岁</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="param-panel">
+                                <label for="bank-type" class="control-label"><i class="fas fa-credit-card me-1"></i>银行卡类型</label>
+                                <select id="bank-type" class="form-select">
+                                    <option value="both">借记卡和信用卡</option>
+                                    <option value="debit">仅借记卡</option>
+                                    <option value="credit">仅信用卡</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="param-panel">
+                                <label for="region" class="control-label"><i class="fas fa-map-marker-alt me-1"></i>所在地区</label>
+                                <select id="region" class="form-select">
+                                    <option value="random">随机地区</option>
+                                    <option value="north">北方地区</option>
+                                    <option value="south">南方地区</option>
+                                    <option value="east">东部地区</option>
+                                    <option value="west">西部地区</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 生成按钮 -->
+                    <div class="text-center mt-4">
+                        <button id="generate-btn" class="btn btn-lg btn-generate" onclick="generateData()">
+                            <i class="fas fa-bolt me-2"></i>开始生成
+                        </button>
+                        <div class="loader" id="generate-loader"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 生成结果 -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="section-title"><i class="fas fa-table"></i>生成的测试数据</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-secondary action-btn" onclick="clearResults()">
+                                <i class="fas fa-trash-alt me-1"></i>清空
+                            </button>
+                            <button class="btn btn-outline-primary action-btn" onclick="exportToTxt()">
+                                <i class="fas fa-file-export me-1"></i>导出
+                            </button>
+                            <button class="btn btn-outline-success action-btn" onclick="copyToClipboard()">
+                                <i class="fas fa-copy me-1"></i>复制全部
+                            </button>
+                        </div>
+                    </div>
+                    <div class="result-box position-relative">
+                        <div id="result-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 说明区域 -->
+    <div class="accordion mt-5" id="accordionExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    <i class="fas fa-info-circle me-2"></i>测试数据生成器说明
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                    <p class="mb-2">该工具用于生成虚拟的测试数据，所有生成的数据均为随机产生的虚拟信息，不涉及任何真实个人或实体。</p>
+                    <div class="highlight my-3">
+                        <p class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>请注意：本生成器仅提供测试用途，所有生成的数据均为虚拟信息，不代表任何真实信息。</p>
+                    </div>
+                    <p>支持生成的数据类型：</p>
+                    <ul>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>基本个人信息</strong>：姓名、性别、年龄</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>联系信息</strong>：地址、手机号、电子邮箱</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>金融信息</strong>：银行卡号（借记卡/信用卡）</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>身份信息</strong>：身份证号</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>职业信息</strong>：公司名称、职位、年收入</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>社交信息</strong>：微博账号、QQ号</li>
+                        <li><i class="fas fa-check text-success me-2"></i><strong>其他信息</strong>：学历、婚姻状况、个人网站</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 通知框 -->
+<div id="notification" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="fas fa-check-circle me-2"></i> <span id="notification-text">操作成功！</span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+<!-- 页脚 -->
+<footer class="footer mt-auto py-3 bg-light">
+    <div class="container text-center">
+        <span class="text-muted">© 2023 综合测试数据生成器 | 仅用于测试目的</span>
+    </div>
+</footer>
+
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 数据源
+    const surnames = ["李", "王", "张", "刘", "陈", "杨", "赵", "黄", "周", "吴", "徐", "孙", "胡", "朱", "高", "林", "何", "郭", "马"];
+    const maleNames = ["伟", "强", "勇", "军", "磊", "洋", "涛", "超", "明", "刚", "平", "辉", "鹏", "杰", "鑫", "浩", "宇", "帆", "旭"];
+    const femaleNames = ["芳", "娜", "敏", "静", "秀英", "丽", "艳", "娟", "玲", "霞", "燕", "艳", "婷", "莹", "雪", "慧", "琳", "颖", "洁"];
+    
+    const provinces = ["北京市", "上海市", "天津市", "重庆市", "河北省", "山西省", "辽宁省", "吉林省", "黑龙江省", "江苏省", "浙江省", "安徽省", "福建省", "江西省", "山东省", "河南省", "湖北省", "湖南省", "广东省", "海南省", "四川省", "贵州省", "云南省", "陕西省", "甘肃省", "青海省"];
+    
+    const cities = {
+        "北京市": ["东城区", "西城区", "朝阳区", "丰台区", "石景山区", "海淀区", "门头沟区", "房山区", "通州区"],
+        "上海市": ["黄浦区", "徐汇区", "长宁区", "静安区", "普陀区", "虹口区", "杨浦区", "闵行区", "宝山区"],
+        "广东省": ["广州市", "深圳市", "珠海市", "汕头市", "佛山市", "韶关市", "湛江市", "肇庆市", "江门市"],
+        "江苏省": ["南京市", "无锡市", "徐州市", "常州市", "苏州市", "南通市", "连云港市", "淮安市", "盐城市"]
+    };
+    
+    const streets = ["中山路", "解放路", "人民路", "文化路", "建设路", "和平路", "胜利路", "友谊路", "光明路", "朝阳路", "公园路", "青年路", "新华路", "团结路", "民主路", "滨江路", "大学路", "科技路"];
+    
+    const companies = ["科技有限公司", "网络有限公司", "信息技术有限公司", "电子商务有限公司", "贸易有限公司", "实业有限公司", "集团股份有限公司", "咨询有限公司", "文化传媒有限公司", "金融服务有限公司"];
+    
+    const jobs = ["软件工程师", "产品经理", "UI设计师", "数据分析师", "市场营销经理", "人力资源专员", "财务总监", "销售主管", "项目经理", "运营总监", "内容编辑", "客户服务经理"];
+    
+    const educations = ["高中", "中专", "大专", "本科", "硕士", "博士"];
+    
+    const domains = ["@163.com", "@qq.com", "@gmail.com", "@outlook.com", "@hotmail.com", "@yahoo.com", "@sina.com"];
+    
+    const banks = [
+        {name: "中国工商银行", prefix: "622202", type: "debit"},
+        {name: "中国建设银行", prefix: "622700", type: "debit"},
+        {name: "中国银行", prefix: "456351", type: "debit"},
+        {name: "中国农业银行", prefix: "622848", type: "debit"},
+        {name: "招商银行", prefix: "622588", type: "debit"},
+        {name: "交通银行", prefix: "622260", type: "debit"},
+        {name: "中信银行", prefix: "622690", type: "credit"},
+        {name: "光大银行", prefix: "622666", type: "credit"},
+        {name: "民生银行", prefix: "622622", type: "credit"},
+        {name: "浦发银行", prefix: "622522", type: "credit"}
+    ];
+    
+    // 选中的数据项
+    const selectedDataTypes = new Set(['name', 'age', 'address', 'bank']);
+
+
+    // 解决navigator.clipboard兼容性问题
+    if (!navigator.clipboard) {
+        navigator.clipboard = {
+            writeText: function (text) {
+                return new Promise(function (resolve, reject) {
+                    // 使用传统复制方法作为回退方案
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+
+                    try {
+                        const successful = document.execCommand('copy');
+                        if (successful) {
+                            resolve();
+                        } else {
+                            reject(new Error('无法复制文本'));
+                        }
+                    } catch (err) {
+                        reject(err);
+                    } finally {
+                        document.body.removeChild(textArea);
+                    }
+                });
+            }
+        };
+    }
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function () {
+        // 模拟页面加载
+        setTimeout(() => {
+            document.getElementById('page-loader').style.opacity = '0';
+            document.getElementById('page-loader').style.visibility = 'hidden';
+        }, 1500);
+        
+        // 数据选择器事件
+        document.querySelectorAll('.data-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                if (selectedDataTypes.has(type)) {
+                    selectedDataTypes.delete(type);
+                    this.classList.remove('selected');
+                } else {
+                    selectedDataTypes.add(type);
+                    this.classList.add('selected');
+                }
+            });
+        });
+    });
+
+    // 生成测试数据
+    function generateData() {
+        // 显示加载状态
+        const generateBtn = document.getElementById('generate-btn');
+        const loader = document.getElementById('generate-loader');
+        generateBtn.disabled = true;
+        loader.style.display = 'block';
+        
+        // 模拟生成耗时
+        setTimeout(() => {
+            const count = parseInt(document.getElementById('count').value);
+            const minAge = parseInt(document.getElementById('min-age').value);
+            const maxAge = parseInt(document.getElementById('max-age').value);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const bankType = document.getElementById('bank-type').value;
+            
+            let results = [];
+            
+            for (let i = 0; i < count; i++) {
+                let data = {};
+                
+                // 生成姓名
+                if (selectedDataTypes.has('name')) {
+                    const surname = surnames[Math.floor(Math.random() * surnames.length)];
+                    let firstName;
+                    
+                    if (gender === 'male') {
+                        firstName = maleNames[Math.floor(Math.random() * maleNames.length)];
+                    } else if (gender === 'female') {
+                        firstName = femaleNames[Math.floor(Math.random() * femaleNames.length)];
+                    } else {
+                        const randomGender = Math.random() > 0.5 ? 'male' : 'female';
+                        firstName = randomGender === 'male' ? 
+                            maleNames[Math.floor(Math.random() * maleNames.length)] : 
+                            femaleNames[Math.floor(Math.random() * femaleNames.length)];
+                    }
+                    
+                    data.name = surname + firstName;
+                }
+                
+                // 生成年龄
+                if (selectedDataTypes.has('age')) {
+                    data.age = Math.floor(Math.random() * (maxAge - minAge + 1)) + minAge;
+                }
+                
+                // 生成地址
+                if (selectedDataTypes.has('address')) {
+                    const province = provinces[Math.floor(Math.random() * provinces.length)];
+                    const city = cities[province] ? 
+                        cities[province][Math.floor(Math.random() * cities[province].length)] : 
+                        province + "市区";
+                    const street = streets[Math.floor(Math.random() * streets.length)];
+                    const building = Math.floor(Math.random() * 100) + 1;
+                    const room = Math.floor(Math.random() * 1000) + 101;
+                    data.address = `${province}${city}${street}${building}号${room}室`;
+                }
+                
+                // 生成银行卡
+                if (selectedDataTypes.has('bank')) {
+                    let bank;
+                    if (bankType === 'both') {
+                        bank = banks[Math.floor(Math.random() * banks.length)];
+                    } else if (bankType === 'debit') {
+                        const debitBanks = banks.filter(b => b.type === 'debit');
+                        bank = debitBanks[Math.floor(Math.random() * debitBanks.length)];
+                    } else {
+                        const creditBanks = banks.filter(b => b.type === 'credit');
+                        bank = creditBanks[Math.floor(Math.random() * creditBanks.length)];
+                    }
+                    
+                    // 生成卡号
+                    let cardNumber = bank.prefix;
+                    for (let i = 0; i < 10; i++) {
+                        cardNumber += Math.floor(Math.random() * 10);
+                    }
+                    
+                    // 添加Luhn校验位
+                    cardNumber += calculateLuhnCheckDigit(cardNumber);
+                    
+                    data.bank = `${bank.name}: ${cardNumber.replace(/(\d{4})/g, '$1 ').trim()} (${bank.type === 'debit' ? '借记卡' : '信用卡'})`;
+                }
+                
+                // 生成手机号
+                if (selectedDataTypes.has('phone')) {
+                    const prefixes = ['130', '131', '132', '133', '134', '135', '136', '137', '138', '139', 
+                                    '150', '151', '152', '153', '155', '156', '157', '158', '159', 
+                                    '180', '181', '182', '183', '184', '185', '186', '187', '188', '189'];
+                    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                    let phone = prefix;
+                    for (let i = 0; i < 8; i++) {
+                        phone += Math.floor(Math.random() * 10);
+                    }
+                    data.phone = phone;
+                }
+                
+                // 生成电子邮箱
+                if (selectedDataTypes.has('email')) {
+                    const name = data.name || generateRandomName();
+                    const domain = domains[Math.floor(Math.random() * domains.length)];
+                    data.email = name + Math.floor(Math.random() * 100) + domain;
+                }
+                
+                // 生成身份证号
+                if (selectedDataTypes.has('id')) {
+                    // 简化版身份证生成
+                    const provinceCode = Math.floor(Math.random() * 66) + 11;
+                    const cityCode = Math.floor(Math.random() * 100);
+                    const districtCode = Math.floor(Math.random() * 100);
+                    const birthYear = Math.floor(Math.random() * 50) + 1950;
+                    const birthMonth = Math.floor(Math.random() * 12) + 1;
+                    const birthDay = Math.floor(Math.random() * 28) + 1;
+                    const randomCode = Math.floor(Math.random() * 1000);
+                    
+                    const idBase = `${provinceCode.toString().padStart(2, '0')}${cityCode.toString().padStart(2, '0')}${districtCode.toString().padStart(2, '0')}${birthYear}${birthMonth.toString().padStart(2, '0')}${birthDay.toString().padStart(2, '0')}${randomCode.toString().padStart(3, '0')}`;
+                    
+                    // 计算校验码（简化版）
+                    const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+                    const codes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+                    let sum = 0;
+                    for (let i = 0; i < 17; i++) {
+                        sum += parseInt(idBase.charAt(i)) * weights[i];
+                    }
+                    const checkCode = codes[sum % 11];
+                    
+                    data.id = idBase + checkCode;
+                }
+                
+                // 生成公司名称
+                if (selectedDataTypes.has('company')) {
+                    const prefix = surnames[Math.floor(Math.random() * surnames.length)];
+                    const suffix = companies[Math.floor(Math.random() * companies.length)];
+                    data.company = prefix + suffix;
+                }
+                
+                // 生成职位
+                if (selectedDataTypes.has('job')) {
+                    data.job = jobs[Math.floor(Math.random() * jobs.length)];
+                }
+                
+                // 生成学历
+                if (selectedDataTypes.has('education')) {
+                    data.education = educations[Math.floor(Math.random() * educations.length)];
+                }
+                
+                // 生成婚姻状况
+                if (selectedDataTypes.has('marriage')) {
+                    data.marriage = Math.random() > 0.5 ? "已婚" : "未婚";
+                }
+                
+                // 生成年收入
+                if (selectedDataTypes.has('income')) {
+                    const incomeLevels = ["5-10万", "10-15万", "15-20万", "20-30万", "30-50万", "50万以上"];
+                    data.income = incomeLevels[Math.floor(Math.random() * incomeLevels.length)];
+                }
+                
+                // 生成个人网站
+                if (selectedDataTypes.has('website')) {
+                    const domains = [".com", ".cn", ".net", ".org", ".me"];
+                    const domain = domains[Math.floor(Math.random() * domains.length)];
+                    data.website = "www." + generateRandomString(6) + domain;
+                }
+                
+                // 生成微博账号
+                if (selectedDataTypes.has('weibo')) {
+                    data.weibo = "@" + generateRandomString(8);
+                }
+                
+                // 生成QQ号
+                if (selectedDataTypes.has('qq')) {
+                    let qq = "";
+                    for (let i = 0; i < 9; i++) {
+                        qq += Math.floor(Math.random() * 10);
+                    }
+                    data.qq = qq;
+                }
+                
+                results.push(data);
+            }
+            
+            displayResults(results);
+            
+            // 隐藏加载状态
+            generateBtn.disabled = false;
+            loader.style.display = 'none';
+        }, 800);
+    }
+    
+    // 生成随机姓名（用于邮箱）
+    function generateRandomName() {
+        const surname = surnames[Math.floor(Math.random() * surnames.length)];
+        const name = maleNames.concat(femaleNames)[Math.floor(Math.random() * (maleNames.length + femaleNames.length))];
+        return surname + name;
+    }
+    
+    // 生成随机字符串
+    function generateRandomString(length) {
+        const chars = 'abcdefghijklmnopqrstuvwxyz';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // 计算Luhn校验位
+    function calculateLuhnCheckDigit(number) {
+        let sum = 0;
+        let doubleUp = false;
+        
+        for (let i = number.length - 1; i >= 0; i--) {
+            let digit = parseInt(number.charAt(i));
+            
+            if (doubleUp) {
+                digit *= 2;
+                if (digit > 9) {
+                    digit -= 9;
+                }
+            }
+            
+            sum += digit;
+            doubleUp = !doubleUp;
+        }
+        
+        return (10 - (sum % 10)) % 10;
+    }
+
+    // 显示生成结果
+    function displayResults(results) {
+        const container = document.getElementById('result-container');
+        container.innerHTML = '';
+
+        if (results.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted py-4">请设置参数并点击"开始生成"按钮</p>';
+            return;
+        }
+
+        results.forEach((data, index) => {
+            const infoCard = document.createElement('div');
+            infoCard.className = 'info-card';
+            infoCard.onclick = function() {
+                copySingleInfo(data);
+            };
+            infoCard.title = '点击复制此条信息';
+            
+            let contentHTML = `<div class="info-item"><div class="info-label">序号：</div><div class="info-value">${index + 1}</div></div>`;
+            
+            // 动态添加选中的数据类型
+            if (selectedDataTypes.has('name') && data.name) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-user me-1"></i>姓名：</div><div class="info-value">${data.name}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('age') && data.age) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-birthday-cake me-1"></i>年龄：</div><div class="info-value">${data.age} 岁</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('address') && data.address) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-home me-1"></i>地址：</div><div class="info-value">${data.address}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('bank') && data.bank) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-credit-card me-1"></i>银行卡：</div><div class="info-value">${data.bank}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('phone') && data.phone) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-mobile-alt me-1"></i>手机号：</div><div class="info-value">${data.phone}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('email') && data.email) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-envelope me-1"></i>电子邮箱：</div><div class="info-value">${data.email}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('id') && data.id) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-id-card me-1"></i>身份证号：</div><div class="info-value">${data.id}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('company') && data.company) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-building me-1"></i>公司名称：</div><div class="info-value">${data.company}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('job') && data.job) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-briefcase me-1"></i>职位：</div><div class="info-value">${data.job}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('education') && data.education) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-graduation-cap me-1"></i>学历：</div><div class="info-value">${data.education}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('marriage') && data.marriage) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-heart me-1"></i>婚姻状况：</div><div class="info-value">${data.marriage}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('income') && data.income) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-money-bill-wave me-1"></i>年收入：</div><div class="info-value">${data.income}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('website') && data.website) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fas fa-globe me-1"></i>个人网站：</div><div class="info-value">${data.website}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('weibo') && data.weibo) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fab fa-weibo me-1"></i>微博账号：</div><div class="info-value">${data.weibo}</div></div>`;
+            }
+            
+            if (selectedDataTypes.has('qq') && data.qq) {
+                contentHTML += `<div class="info-item"><div class="info-label"><i class="fab fa-qq me-1"></i>QQ号：</div><div class="info-value">${data.qq}</div></div>`;
+            }
+            
+            infoCard.innerHTML = contentHTML;
+            container.appendChild(infoCard);
+        });
+    }
+
+    // 复制单条信息
+    function copySingleInfo(info) {
+        let text = '';
+        
+        // 动态生成文本
+        if (selectedDataTypes.has('name') && info.name) {
+            text += `姓名: ${info.name}\n`;
+        }
+        
+        if (selectedDataTypes.has('age') && info.age) {
+            text += `年龄: ${info.age}岁\n`;
+        }
+        
+        if (selectedDataTypes.has('address') && info.address) {
+            text += `地址: ${info.address}\n`;
+        }
+        
+        if (selectedDataTypes.has('bank') && info.bank) {
+            text += `银行卡: ${info.bank}\n`;
+        }
+        
+        if (selectedDataTypes.has('phone') && info.phone) {
+            text += `手机号: ${info.phone}\n`;
+        }
+        
+        if (selectedDataTypes.has('email') && info.email) {
+            text += `电子邮箱: ${info.email}\n`;
+        }
+        
+        if (selectedDataTypes.has('id') && info.id) {
+            text += `身份证号: ${info.id}\n`;
+        }
+        
+        if (selectedDataTypes.has('company') && info.company) {
+            text += `公司名称: ${info.company}\n`;
+        }
+        
+        if (selectedDataTypes.has('job') && info.job) {
+            text += `职位: ${info.job}\n`;
+        }
+        
+        if (selectedDataTypes.has('education') && info.education) {
+            text += `学历: ${info.education}\n`;
+        }
+        
+        if (selectedDataTypes.has('marriage') && info.marriage) {
+            text += `婚姻状况: ${info.marriage}\n`;
+        }
+        
+        if (selectedDataTypes.has('income') && info.income) {
+            text += `年收入: ${info.income}\n`;
+        }
+        
+        if (selectedDataTypes.has('website') && info.website) {
+            text += `个人网站: ${info.website}\n`;
+        }
+        
+        if (selectedDataTypes.has('weibo') && info.weibo) {
+            text += `微博账号: ${info.weibo}\n`;
+        }
+        
+        if (selectedDataTypes.has('qq') && info.qq) {
+            text += `QQ号: ${info.qq}\n`;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('测试数据已复制！');
+        }).catch(err => {
+            console.error('复制失败:', err);
+            showNotification('复制失败！请手动复制');
+        });
+    }
+
+    // 复制全部
+    function copyToClipboard() {
+        const cards = document.querySelectorAll('.info-card');
+        if (cards.length === 0) return;
+
+        let text = '';
+        cards.forEach((card, index) => {
+            text += `=== 测试数据 ${index + 1} ===\n`;
+            
+            const items = card.querySelectorAll('.info-item');
+            items.forEach(item => {
+                const label = item.querySelector('.info-label').textContent.replace('：', '').trim();
+                const value = item.querySelector('.info-value').textContent;
+                // 跳过序号行
+                if (label !== '序号') {
+                    text += `${label}: ${value}\n`;
+                }
+            });
+            
+            text += '\n';
+        });
+
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('所有测试数据已复制！');
+        }).catch(err => {
+            console.error('复制失败:', err);
+            showNotification('复制失败！请手动复制');
+        });
+    }
+
+    // 导出为文本文件
+    function exportToTxt() {
+        const cards = document.querySelectorAll('.info-card');
+        if (cards.length === 0) return;
+
+        let text = '生成的测试数据：\n\n';
+        cards.forEach((card, index) => {
+            text += `=== 测试数据 ${index + 1} ===\n`;
+            
+            const items = card.querySelectorAll('.info-item');
+            items.forEach(item => {
+                const label = item.querySelector('.info-label').textContent.replace('：', '').trim();
+                const value = item.querySelector('.info-value').textContent;
+                // 跳过序号行
+                if (label !== '序号') {
+                    text += `${label}: ${value}\n`;
+                }
+            });
+            
+            text += '\n';
+        });
+        
+        text += '\n生成时间：' + new Date().toLocaleString();
+        text += '\n\n注意：本工具生成的数据均为虚拟信息，仅用于测试目的。';
+
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '测试数据_' + new Date().toISOString().slice(0, 10) + '.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('测试数据已导出为TXT文件！');
+    }
+
+    // 清空结果
+    function clearResults() {
+        document.getElementById('result-container').innerHTML = '';
+        showNotification('已清空所有结果！');
+    }
+
+    // 显示通知
+    function showNotification(message) {
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+
+        notificationText.textContent = message;
+        notification.style.display = 'block';
+
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+</script>
+</body>
+</html>

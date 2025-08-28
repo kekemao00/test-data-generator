@@ -4,6 +4,8 @@
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)]()
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)]()
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)]()
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/xxxxsn/test-data-generator)
+![GitHub last commit](https://img.shields.io/github/last-commit/xxxxsn/test-data-generator)
 
 一套用于生成测试数据的Web工具，包含身份证号码生成器和用户信息生成器。
 
